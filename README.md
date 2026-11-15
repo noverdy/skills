@@ -50,6 +50,7 @@ ln -s "$PWD/skills/skills/reporting/snapshotting-http-requests" ~/.claude/skills
 
 - **[receiving-temp-email](docs/accounts/receiving-temp-email.md)**: creates a throwaway inbox (Mail.tm, with Maildrop as backup) and reads the verification code or magic link from it. Useful for making extra test accounts on a target, e.g. for IDOR or access-control testing. *Needs `curl`.*
 - **[using-yeswehack](docs/accounts/using-yeswehack.md)**: reads your YesWeHack hunter account with a cached 2FA login: program briefs and verbatim scope, User-Agent tokens, VPN config, assigned test credentials, your reports with their conversations and which ones wait on you, and a diff of every program since the last check. *Needs Node 18+, no npm packages.*
+- **[using-surfshark-proxies](docs/accounts/using-surfshark-proxies.md)**: runs your Surfshark VPN as local egress proxies, one Docker container per country or city, so commands, browsers and parallel agents exit from different locations while the host's own network stays untouched. Fails closed when a tunnel drops. *Needs Node 18+ and Docker, no npm packages.*
 
 ### Testing
 
