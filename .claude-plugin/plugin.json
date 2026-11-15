@@ -1,7 +1,7 @@
 {
   "name": "noverdy-skills",
   "version": "0.1.0",
-  "description": "Agent skills for bug bounty and pentesting: WordPress plugin lookups and duplicate checks, local WordPress labs, throwaway inboxes, YesWeHack account reads, Surfshark egress proxies, out-of-band callbacks, Wordfence and Patchstack bounty estimates, Burp-style request/response snapshots, a finding gate, report writing and evidence packs.",
+  "description": "Agent skills for bug bounty and pentesting: WordPress plugin lookups and duplicate checks, local WordPress labs, throwaway inboxes, YesWeHack account reads, Surfshark egress proxies, TOTP 2FA codes, out-of-band callbacks, Wordfence and Patchstack bounty estimates, Burp-style request/response snapshots, a finding gate, report writing and evidence packs.",
   "author": {
     "name": "noverdy",
     "url": "https://github.com/noverdy"
@@ -19,6 +19,7 @@
     "./skills/accounts/receiving-temp-email",
     "./skills/accounts/using-yeswehack",
     "./skills/accounts/using-surfshark-proxies",
+    "./skills/accounts/generating-totp-codes",
     "./skills/testing/receiving-oob-callbacks",
     "./skills/testing/running-wordpress-labs",
     "./skills/reporting/estimating-wordfence-bounties",
