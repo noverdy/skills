@@ -16,10 +16,10 @@ const UA = 'using-surfshark-proxies/1.0';
 const API_CLUSTERS = 'https://api.surfshark.com/v1/server/clusters';
 const API_ME = 'https://api.surfshark.com/v1/server/user';
 const API_CONFIGS = 'https://my.surfshark.com/vpn/api/v1/server/configurations';
-const HOME = process.env.SURFSHARK_HOME
-  || join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'surfshark');
-const CACHE = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'surfshark');
-const STATE = join(process.env.XDG_STATE_HOME || join(homedir(), '.local', 'state'), 'surfshark');
+const HOME = process.env.SURFSHARK_PROXY_HOME
+  || join(process.env.XDG_CONFIG_HOME || join(homedir(), '.config'), 'surfshark-proxy');
+const CACHE = join(process.env.XDG_CACHE_HOME || join(homedir(), '.cache'), 'surfshark-proxy');
+const STATE = join(process.env.XDG_STATE_HOME || join(homedir(), '.local', 'state'), 'surfshark-proxy');
 const USER_FILE = join(HOME, 'openvpn_user');
 const PASS_FILE = join(HOME, 'openvpn_password');
 const CONFIG_FILE = join(HOME, 'config.json');
@@ -30,7 +30,7 @@ const CONFIG_MAX_AGE_MS = 7 * 86400e3;
 const UP_TIMEOUT_MS = 60e3;
 const PROBE_TIMEOUT_MS = 8e3;
 
-const USAGE = `usage: surfshark <command> [args] [--json]
+const USAGE = `usage: surfshark-proxy <command> [args] [--json]
 
   setup [--from-file f] [--link | --link-as name]
                                    save the OpenVPN service credentials, pull the image and
@@ -50,10 +50,10 @@ const USAGE = `usage: surfshark <command> [args] [--json]
   logs NAME [--follow]             the session's gluetun log
 
 COUNTRY is a code (jp, us) or name ("united states"); CITY is a substring (boston).
-Credentials and config: ${HOME} (SURFSHARK_HOME). Needs Docker.`;
+Credentials and config: ${HOME} (SURFSHARK_PROXY_HOME). Needs Docker.`;
 
 function fail(message, code = 1) {
-  console.error(`surfshark: ${message}`);
+  console.error(`surfshark-proxy: ${message}`);
   process.exit(code);
 }
 
@@ -119,7 +119,7 @@ function requireDocker() {
 
 function requireSetup() {
   if (!existsSync(USER_FILE) || !existsSync(PASS_FILE)) {
-    fail('not set up: the user runs "surfshark setup" in their own terminal to save the Surfshark '
+    fail('not set up: the user runs "surfshark-proxy setup" in their own terminal to save the Surfshark '
       + 'service credentials', 2);
   }
 }
@@ -140,10 +140,10 @@ function pick(servers, country, city) {
   const c = norm(country);
   let pool = servers.filter((s) => norm(s.countryCode) === c);
   if (!pool.length) pool = servers.filter((s) => norm(s.country).includes(c));
-  if (!pool.length) fail(`no server in country "${country}" (see: surfshark list)`);
+  if (!pool.length) fail(`no server in country "${country}" (see: surfshark-proxy list)`);
   if (city) {
     pool = pool.filter((s) => norm(s.location).includes(norm(city)));
-    if (!pool.length) fail(`no server in city "${city}" (see: surfshark list ${country})`);
+    if (!pool.length) fail(`no server in city "${city}" (see: surfshark-proxy list ${country})`);
   }
   return pool.reduce((a, b) => ((b.load ?? 100) < (a.load ?? 100) ? b : a));
 }
@@ -303,7 +303,7 @@ async function up() {
   if (!/^[a-z0-9][a-z0-9-]{0,40}$/.test(name)) fail(`bad session name "${name}": use a-z, 0-9 and dashes`);
   const existing = sessions();
   if (existing.some((s) => s.name === name)) {
-    fail(`session "${name}" already exists (surfshark status ${name}); pass --name for another one`);
+    fail(`session "${name}" already exists (surfshark-proxy status ${name}); pass --name for another one`);
   }
   const taken = new Set(existing.map((s) => s.port));
   if (flags.port) {
@@ -334,7 +334,7 @@ async function up() {
     removeSession(name);
     if (res.status === 'auth') {
       fail('Surfshark rejected the login: the user regenerates the service credentials at '
-        + 'my.surfshark.com (VPN > Manual setup) and runs "surfshark setup" again');
+        + 'my.surfshark.com (VPN > Manual setup) and runs "surfshark-proxy setup" again');
     }
     if (/Conflict/.test(log)) fail(`session "${name}" was just created by someone else; pass --name`);
     fail(`tunnel did not come up (${res.status}); try --tcp or another city.\n${log}`);
@@ -348,7 +348,7 @@ async function up() {
   };
   if (flags.json) return console.log(JSON.stringify(out, null, 2));
   console.log(`${out.proxy}  ${name}  exit ${out.exit_ip ?? 'unknown'} (${out.exit_city ?? '?'}, ${out.exit_country ?? '?'})`
-    + (out.secured ? '' : '  WARNING: exit not confirmed as Surfshark yet, check "surfshark status"'));
+    + (out.secured ? '' : '  WARNING: exit not confirmed as Surfshark yet, check "surfshark-proxy status"'));
 }
 
 function down() {
@@ -358,7 +358,7 @@ function down() {
   if (!names.length) fail(flags.all ? 'no sessions running' : `missing NAME or --all\n\n${USAGE}`);
   let missing = 0;
   for (const n of names) {
-    if (!all.some((s) => s.name === n)) { console.error(`surfshark: no session "${n}"`); missing++; continue; }
+    if (!all.some((s) => s.name === n)) { console.error(`surfshark-proxy: no session "${n}"`); missing++; continue; }
     removeSession(n);
     console.log(`stopped ${n}`);
   }
@@ -378,8 +378,8 @@ async function status() {
   }));
   if (flags.json) return console.log(JSON.stringify(list, null, 2));
   if (!list.length) {
-    console.log(existsSync(USER_FILE) ? 'no sessions (start one: surfshark up COUNTRY [CITY])'
-      : 'not set up: the user runs "surfshark setup" in their own terminal');
+    console.log(existsSync(USER_FILE) ? 'no sessions (start one: surfshark-proxy up COUNTRY [CITY])'
+      : 'not set up: the user runs "surfshark-proxy setup" in their own terminal');
     return;
   }
   const rows = list.map((s) => [s.name, s.proxy, `${s.city}, ${s.country}`, s.server, s.proto,
@@ -393,7 +393,7 @@ async function status() {
 function exec() {
   requireDocker();
   const name = pos[1];
-  if (!name || !tail.length) fail(`usage: surfshark exec NAME [--image img] -- CMD [ARGS...]`);
+  if (!name || !tail.length) fail(`usage: surfshark-proxy exec NAME [--image img] -- CMD [ARGS...]`);
   if (!sessions().some((s) => s.name === name && s.state === 'running')) fail(`no running session "${name}"`);
   const args = ['run', '--rm', '-i', ...(process.stdout.isTTY && process.stdin.isTTY ? ['-t'] : []),
     '--network', `container:${PREFIX}${name}`, '-v', `${process.cwd()}:/work`, '-w', '/work',
@@ -404,7 +404,7 @@ function exec() {
 
 function logs() {
   requireDocker();
-  if (!pos[1]) fail('usage: surfshark logs NAME [--follow]');
+  if (!pos[1]) fail('usage: surfshark-proxy logs NAME [--follow]');
   const child = spawn('docker', ['logs', '--tail', '100', ...(flags.follow ? ['--follow'] : []), PREFIX + pos[1]],
     { stdio: 'inherit' });
   child.on('exit', (code) => process.exit(code ?? 1));
@@ -486,15 +486,15 @@ async function testLogin() {
 }
 
 function link() {
-  const name = flags['link-as'] || 'surfshark';
+  const name = flags['link-as'] || 'surfshark-proxy';
   const bin = join(homedir(), '.local', 'bin');
   const target = join(bin, name);
   const self = realpathSync(fileURLToPath(import.meta.url));
   const other = (process.env.PATH || '').split(delimiter).map((d) => join(d, name))
     .find((p) => p !== target && existsSync(p) && realpathSync(p) !== self);
   if (other) {
-    console.error(`surfshark: not linking: ${other} already exists and ${target} would hide it; `
-      + 'rerun setup with --link-as NAME (e.g. --link-as surfshark-proxy)');
+    console.error(`surfshark-proxy: not linking: ${other} already exists and ${target} would hide it; `
+      + 'rerun setup with --link-as NAME (e.g. --link-as ssproxy)');
     return;
   }
   mkdirSync(bin, { recursive: true });
@@ -502,7 +502,7 @@ function link() {
   symlinkSync(self, target);
   chmodSync(self, 0o755);
   const onPath = (process.env.PATH || '').split(delimiter).map((p) => resolve(p)).includes(bin);
-  console.log(`linked ${target} -> ${self}` + (onPath ? '' : `\n${bin} is not on PATH; add it to use "surfshark" directly`));
+  console.log(`linked ${target} -> ${self}` + (onPath ? '' : `\n${bin} is not on PATH; add it to use "surfshark-proxy" directly`));
 }
 
 async function setup() {
@@ -542,7 +542,7 @@ async function setup() {
     + (flags.check ? '' : `; credentials saved in ${HOME} (mode 600)`));
   if (flags.link || flags['link-as']) link();
   else if (!flags.check && process.stdin.isTTY && !flags['from-file']) {
-    const a = await ask(`Link "${flags['link-as'] || 'surfshark'}" into ~/.local/bin? [Y/n] `);
+    const a = await ask(`Link "${flags['link-as'] || 'surfshark-proxy'}" into ~/.local/bin? [Y/n] `);
     if (!/^n/i.test(a)) link();
   }
 }

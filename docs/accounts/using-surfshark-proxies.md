@@ -35,10 +35,10 @@ It also comes with the whole collection; see [Installation](../../README.md#inst
 Then set it up once, in your own terminal:
 
 ```bash
-node skills/accounts/using-surfshark-proxies/scripts/surfshark.mjs setup
+node skills/accounts/using-surfshark-proxies/scripts/surfshark-proxy.mjs setup
 ```
 
-It asks for your Surfshark **service credentials**, both hidden. These aren't your account login: find them at my.surfshark.com > VPN > Manual setup > Router or other device > Credentials. Setup pulls the image, makes one test connection to check the login, saves the credentials only if Surfshark accepts them, and offers to link `surfshark` into `~/.local/bin`. If Surfshark's own Linux app already owns the `surfshark` command, it won't hide it; use `--link-as surfshark-proxy` instead. `setup --from-file <file>` reads the two values (username, then password, one per line) from a file, or from stdin with `-`.
+It asks for your Surfshark **service credentials**, both hidden. These aren't your account login: find them at my.surfshark.com > VPN > Manual setup > Router or other device > Credentials. Setup pulls the image, makes one test connection to check the login, saves the credentials only if Surfshark accepts them, and offers to link `surfshark-proxy` into `~/.local/bin`. The name keeps clear of Surfshark's own Linux app, which installs `surfshark`; `--link-as NAME` picks another. `setup --from-file <file>` reads the two values (username, then password, one per line) from a file, or from stdin with `-`.
 
 ## Usage
 
@@ -55,25 +55,25 @@ Run the scan from a German IP and leave my own connection alone.
 The agent starts sessions and points its tools at them:
 
 ```text
-$ surfshark up jp tokyo --name acme-jp
+$ surfshark-proxy up jp tokyo --name acme-jp
 starting "acme-jp": Tokyo, Japan (jp-tok.prod.surfshark.com, udp, load 32%) on 127.0.0.1:8881...
 http://127.0.0.1:8881  acme-jp  exit 89.187.160.155 (Tokyo, Japan)
 
-$ surfshark status
+$ surfshark-proxy status
 NAME     PROXY                  LOCATION                SERVER                     PROTO  HEALTH   EXIT
 acme-jp  http://127.0.0.1:8881  Tokyo, Japan            jp-tok.prod.surfshark.com  udp    healthy  89.187.160.155 (Tokyo)
 acme-us  http://127.0.0.1:8880  Phoenix, United States  us-phx.prod.surfshark.com  udp    healthy  172.216.11.23 (Phoenix)
 
 $ curl -x http://127.0.0.1:8881 https://example.com/login
-$ surfshark exec acme-jp --image projectdiscovery/nuclei -- -u https://example.com
-$ surfshark down acme-jp acme-us
+$ surfshark-proxy exec acme-jp --image projectdiscovery/nuclei -- -u https://example.com
+$ surfshark-proxy down acme-jp acme-us
 ```
 
 Where things live:
 
-- `~/.config/surfshark/`: `openvpn_user` and `openvpn_password` (mode 600) and `config.json`, which sets the image and the port range (8880-8899 by default). `SURFSHARK_HOME` moves it.
-- `~/.cache/surfshark/`: Surfshark's server list and config bundle, refreshed weekly.
-- `~/.local/state/surfshark/sessions/`: the OpenVPN config each running session uses.
+- `~/.config/surfshark-proxy/`: `openvpn_user` and `openvpn_password` (mode 600) and `config.json`, which sets the image and the port range (8880-8899 by default). `SURFSHARK_PROXY_HOME` moves it.
+- `~/.cache/surfshark-proxy/`: Surfshark's server list and config bundle, refreshed weekly.
+- `~/.local/state/surfshark-proxy/sessions/`: the OpenVPN config each running session uses.
 
 ## Limitations
 
