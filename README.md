@@ -63,6 +63,10 @@ ln -s "$PWD/skills/skills/reporting/snapshotting-http-requests" ~/.claude/skills
 - **[estimating-patchstack-bounties](docs/reporting/estimating-patchstack-bounties.md)**: estimates what a WordPress plugin or theme finding earns on Patchstack, as XP and dollars, from live install, VDP and leaderboard data, checks scope and flags flat zero-day bounties. Useful for deciding between Patchstack and Wordfence. *Needs Node 18+, no npm packages.*
 - **[snapshotting-http-requests](docs/reporting/snapshotting-http-requests.md)**: renders a request and response as a Burp-style PNG for the report, with the evidence boxed, numbered notes and secrets blurred. Also sends raw HTTP/1.1 requests exactly as written. *Needs Node 18+, no npm packages.*
 
+- **[gating-bounty-findings](docs/reporting/gating-bounty-findings.md)**: decides FILE, PARK or KILL before any severity or draft exists, by proving the chain to a real impact, running controls, and checking the programme's qualifying list, reward grid and credit cost.
+- **[writing-bounty-reports](docs/reporting/writing-bounty-reports.md)**: drafts and tightens report bodies, titles and triager comments in a fixed, short house style, with a fresh-writer pass that keeps code blocks and attachment placeholders byte-identical.
+- **[packing-report-evidence](docs/reporting/packing-report-evidence.md)**: builds one image per reproduction step (marked-up app screenshots, request/response snapshots, terminal and logcat renders), checks them for leaks and zips them. *Needs Node 18+ and Chrome or Chromium.*
+
 ## Rules of engagement
 
 Use these skills only on targets you're authorized to test: an in-scope bug bounty program, or a pentest with written permission. Follow the program's rules, such as limits on how many test accounts you create or how fast you send requests.
